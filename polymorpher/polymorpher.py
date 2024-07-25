@@ -1,14 +1,12 @@
-
 from .super_cell import compute_super_cell_needed_for_rcut
 from .random_sheer import random_sheer_matrix
 
 from ase import Atoms
 import numpy as np
-
+from ase.io import read, write
+from tqdm  import tqdm
 
 rng = np.random.default_rng() 
-    
-
 
 def random_cell_strain(
                         cell,
@@ -38,7 +36,7 @@ def random_cell_strain(
 
 
 
-def random_super_cell(cell, rcut, min_cells = 2, rng=rng):
+def random_super_cell(cell, rcut, min_cells = 1, rng=rng):
     """
     Args:
         atoms (Atoms):  input structure
@@ -52,16 +50,19 @@ def random_super_cell(cell, rcut, min_cells = 2, rng=rng):
     """
     
     cell_max = compute_super_cell_needed_for_rcut(cell=cell, rcut = rcut)
+    #print(cell_max)
     rint = rng.integers #(low, high=None, size=None )# high is 1+      
 
     cells = np.ones(3,dtype=int)
     for i in range(3):
-        cells[i] = rint(low=1, high=cell_max[i]+1, size=1) 
+        cells[i] = rint(low=cell_max[i], high=cell_max[i]+1, size=1) 
+    #print(cells)
     
     # now we expand the duplication till we hit the min_cells
-    while cells[0]*cells[1]*cells[2] < min_cells:
-        randdim = rint(low=1,high=3, size=1)
-        cells[randdim]+=1
+    #while cells[0]*cells[1]*cells[2] < min_cells:
+    #    randdim = rint(low=1,high=3, size=1)
+    #    cells[randdim]+=1
+    #print(cells)
 
     return(cells)
 
@@ -112,7 +113,7 @@ def random_magnetic_moment_flips(atoms, flip_chance=0.10, rng=rng):
 def polymorphate(
                  atoms,
                  elements = None, 
-                 rcut=6.0,
+                 rcut=2.5,
                  atom_displacement=0.2, 
                  volume_strain=0.10,
                  von_mises_strain = 0.20, 
@@ -120,7 +121,7 @@ def polymorphate(
                  deletion_chance=0.05, 
                  flip_chance = 0.10,
                  swap_chance = 0.05,
-                 min_cells = 2,
+                 min_cells = 3,
                  rng = rng):
 
 
@@ -271,12 +272,28 @@ class Polymorpher(object):
             return atoms_out
     
 
-    
-
-
-    
-
-    
-        
-
-
+if __name__ == "__main__":
+    #import numpy as np
+    #from tqdm import tqdm
+    #from ase.io import read, write
+    #from polymorph.polymorph import polymorphate
+    path = '/lcrc/project/NNFF_mem_sys/dataset_gen/relaxed/'
+    cubic_cell = read(f'{path}sq2_sq2_2_relaxed_Normal520.poscar')
+    for seed in tqdm(range(25)):
+        rng = np.random.default_rng(seed)
+        poly = polymorphate(cubic_cell,
+                            elements = ['Nd', 'Ni', 'O'],
+                            rcut=2.5,
+                            atom_displacement=0.2,
+                            volume_strain=0.00,
+                            von_mises_strain = 0.00,
+                            shrink_bias = 0.25,
+                            #deletion_chance=0.025,
+                            deletion_chance=0.00,
+                            flip_chance = 0.00,
+                            swap_chance = 0.00,
+                            min_cells = 1,
+                            rng = rng)
+        kwargs = {'sort':True}
+        output_path = './out/'
+        write(f'{out_path}supercell{seed:02d}.poscar', poly, **kwargs)    

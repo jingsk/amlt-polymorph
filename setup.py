@@ -22,7 +22,7 @@ if __name__ == "__main__":
         author=['Michael Waters', 'Nicholas Wagner'],
         author_email='michael.j.waters@northwestern.edu',
         license='modified BSD',
-        packages=find_packages(where=".", exclude=("benchdev", "benchdev.*")),
+        packages=['polymorpher'],
         package_data={},
         zip_safe=False,
         install_requires=reqs_list,
