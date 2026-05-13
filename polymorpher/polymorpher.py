@@ -33,9 +33,6 @@ def random_cell_strain(
     cell_new = M @ cell
     return cell_new
 
-
-
-
 def random_super_cell(cell, rcut, min_cells = 1, rng=rng):
     """
     Args:
@@ -66,9 +63,7 @@ def random_super_cell(cell, rcut, min_cells = 1, rng=rng):
 
     return(cells)
 
-
-
-def random_deletion( atoms, deletion_chance=0.05, rng=rng):
+def random_deletion(atoms, elements, deletion_chance=0.05, rng=rng):
     """ Add deletions to atoms object in place.
     
     Args:
@@ -76,6 +71,7 @@ def random_deletion( atoms, deletion_chance=0.05, rng=rng):
         deletion_chance (Float): fraction of atoms to remove on average
     """
     '''Deletion chance is fraction'''
+    mask_el = [True if ]
     mask = rng.random(len(atoms))
     mask = np.where(mask < deletion_chance, True, False)
     del atoms[mask]
@@ -163,7 +159,7 @@ def polymorphate(
         
         
         #### deletions
-        random_deletion(atoms_out, deletion_chance=deletion_chance, rng=rng)
+        random_deletion(atoms_out, elements=elements, deletion_chance=deletion_chance, rng=rng)
         
         ### elements swaps
         random_element_swaps(atoms_out, elements=elements, swap_chance=swap_chance, rng=rng)
